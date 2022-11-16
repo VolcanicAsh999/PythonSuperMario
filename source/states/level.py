@@ -38,7 +38,7 @@ class Level(tools.State):
         self.setup_sprite_groups()
 
     def load_map(self):
-        map_file = 'level_' + str(self.game_info[c.LEVEL_NUM]) + '.json'
+        map_file = 'level_' + str(self.game_info[c.WORLD_NUM]) + '_' + str(self.game_info[c.LEVEL_NUM]) + '.json'
         file_path = os.path.join('source', 'data', 'maps', map_file)
         f = open(file_path)
         self.map_data = json.load(f)
@@ -273,6 +273,15 @@ class Level(tools.State):
                 self.change_map(checkpoint.map_index, checkpoint.type)
             elif checkpoint.type == c.CHECKPOINT_TYPE_BOSS:
                 self.player.state = c.WALK_AUTO
+            elif (checkpoint.type == c.CHECKPOINT_TYPE_COIN and
+                    self.player.y_vel < 0):
+                coin_box = box.Box(checkpoint.rect.x, checkpoint.rect.bottom - 40,
+                            c.TYPE_COIN, self.coin_group)
+                coin_box.start_bump(self.moving_score_list)
+                self.box_group.add(coin_box)
+                self.player.y_vel = 7
+                self.player.rect.y = coin_box.rect.bottom
+                self.player.state = c.FALL
             checkpoint.kill()
 
     def update_flag_score(self):
@@ -561,6 +570,9 @@ class Level(tools.State):
             self.next = c.LOAD_SCREEN
         else:
             self.game_info[c.LEVEL_NUM] += 1
+            if self.game_info[c.LEVEL_NUM] > 4:
+                self.game_info[c.LEVEL_NUM] = 1
+                self.game_info[c.WORLD_NUM] += 1
             self.next = c.LOAD_SCREEN
 
     def update_viewport(self):

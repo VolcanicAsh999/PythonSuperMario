@@ -15,6 +15,7 @@ class Menu(tools.State):
                    c.TOP_SCORE: 0,
                    c.CURRENT_TIME: 0.0,
                    c.LEVEL_NUM: 1,
+                   c.WORLD_NUM: 1,
                    c.PLAYER_NAME: c.PLAYER_MARIO}
         self.startup(0.0, persist)
     
@@ -29,7 +30,7 @@ class Menu(tools.State):
         self.setup_cursor()
         
     def setup_background(self):
-        self.background = setup.GFX['level_1']
+        self.background = setup.GFX['level_1_1']
         self.background_rect = self.background.get_rect()
         self.background = pg.transform.scale(self.background,
                                     (int(self.background_rect.width*c.BACKGROUND_MULTIPLER),
@@ -99,6 +100,7 @@ class Menu(tools.State):
         self.game_info[c.SCORE] = 0
         self.game_info[c.LIVES] = 3
         self.game_info[c.CURRENT_TIME] = 0.0
-        self.game_info[c.LEVEL_NUM] = 1
+        #self.game_info[c.LEVEL_NUM] = 1
+        #self.game_info[c.WORLD_NUM] = 1
         
         self.persist = self.game_info
