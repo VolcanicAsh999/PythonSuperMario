@@ -15,9 +15,12 @@ def create_brick(brick_group, item, level):
     if type == c.TYPE_COIN:
         brick_group.add(Brick(x, y, type, 
                     color, level.coin_group))
+    elif type == c.TYPE_VINE:
+        brick_group.add(Brick(x, y, type, color)) #vine bonus levels
     elif (type == c.TYPE_STAR or
         type == c.TYPE_FIREFLOWER or
-        type == c.TYPE_LIFEMUSHROOM):
+        type == c.TYPE_LIFEMUSHROOM or
+        type == c.TYPE_MUSHROOM):
         brick_group.add(Brick(x, y, type,
                     color, level.powerup_group))
     else:
@@ -86,6 +89,9 @@ class Brick(stuff.Stuff):
             elif self.type == c.TYPE_LIFEMUSHROOM:
                 self.state = c.OPENED
                 self.group.add(powerup.LifeMushroom(self.rect.centerx, self.rest_height))
+            elif self.type == c.TYPE_MUSHROOM:
+                self.state = c.OPENED
+                self.group.add(powerup.Mushroom(self.rect.centerx, self.rest_height))
             else:
                 self.state = c.RESTING
         
@@ -101,7 +107,8 @@ class Brick(stuff.Stuff):
                     self.image = self.frames[self.frame_index]
         elif (self.type == c.TYPE_STAR or 
             self.type == c.TYPE_FIREFLOWER or 
-            self.type == c.TYPE_LIFEMUSHROOM):
+            self.type == c.TYPE_LIFEMUSHROOM or
+            self.type == c.TYPE_MUSHROOM):
             self.frame_index = 1
             self.image = self.frames[self.frame_index]
         

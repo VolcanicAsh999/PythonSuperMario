@@ -163,6 +163,7 @@ class Info():
         self.update_text(self.score_text, self.score)
         self.update_text(self.coin_count_text, level_info[c.COIN_TOTAL])
         self.update_text(self.stage_label, level_info[c.LEVEL_NUM])
+        self.update_text(self.stage_label, level_info[c.WORLD_NUM])
         self.flashing_coin.update(level_info[c.CURRENT_TIME])
         if self.state == c.LOAD_SCREEN:
             self.update_text(self.stage_label2, level_info[c.LEVEL_NUM])

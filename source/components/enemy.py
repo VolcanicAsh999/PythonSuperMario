@@ -43,6 +43,9 @@ def create_enemy(item, level):
             radius = i * 21 # 8 * 2.69 = 21
             sprite.append(FireStick(center_x, center_y, dir, color,
                 radius))
+    elif item['type'] == c.ENEMY_TYPE_FLY_FORWARDS_KOOPA:
+        sprite = FlyForwardsKoopa(item['x'], item['y'], dir, color,
+            in_range, range_start, range_end)
     return sprite
     
 class Enemy(pg.sprite.Sprite):
@@ -50,7 +53,7 @@ class Enemy(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self)
     
     def setup_enemy(self, x, y, direction, name, sheet, frame_rect_list,
-                        in_range, range_start, range_end, isVertical=False):
+                        in_range, range_start, range_end, isVertical=False, isVerticalForwards=False):
         self.frames = []
         self.frame_index = 0
         self.animate_timer = 0
@@ -64,10 +67,12 @@ class Enemy(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.bottom = y
+        self.starty = y
         self.in_range = in_range
         self.range_start = range_start
         self.range_end = range_end
         self.isVertical = isVertical
+        self.isVerticalForwards = isVerticalForwards
         self.set_velocity()
         self.death_timer = 0
     
@@ -80,19 +85,23 @@ class Enemy(pg.sprite.Sprite):
         if self.isVertical:
             self.x_vel = 0
             self.y_vel = ENEMY_SPEED
+        elif self.isVerticalForwards:
+            self.x_vel = ENEMY_SPEED *-3 if self.direction == c.LEFT else ENEMY_SPEED *3
+            self.y_vel = ENEMY_SPEED
         else:
             self.x_vel = ENEMY_SPEED *-1 if self.direction == c.LEFT else ENEMY_SPEED
             self.y_vel = 0
     
     def update(self, game_info, level):
         self.current_time = game_info[c.CURRENT_TIME]
-        self.handle_state()
+        self.handle_state(level)
         self.animation()
         self.update_position(level)
 
-    def handle_state(self):
+    def handle_state(self, level):
         if (self.state == c.WALK or
-            self.state == c.FLY):
+            self.state == c.FLY or
+            self.state == c.FLY_FORWARDS):
             self.walking()
         elif self.state == c.FALL:
             self.falling()
@@ -104,6 +113,16 @@ class Enemy(pg.sprite.Sprite):
             self.shell_sliding()
         elif self.state == c.REVEAL:
             self.revealing()
+        elif slf.state == c.REPLACE_WITH_KOOPA:
+            self.replace(level)
+
+    def replace(self, level):
+        enemy = Koopa(self.rect.x, self.rect.y, self.direction, self.color, False,
+                      0, 0)
+        group = pg.sprite.Group()
+        group.add(enemy)
+        level.enemy_group.add(group)
+        self.kill()
     
     def walking(self):
         if (self.current_time - self.animate_timer) > 125:
@@ -120,7 +139,7 @@ class Enemy(pg.sprite.Sprite):
             self.animate_timer = self.current_time
     
     def falling(self):
-        if self.y_vel < 10:
+        if self.y_vel < 10:# and self.state != c.FLY_FORWARDS:
             self.y_vel += self.gravity
     
     def jumped_on(self):
@@ -163,6 +182,13 @@ class Enemy(pg.sprite.Sprite):
             elif self.rect.bottom > self.range_end:
                 self.rect.bottom = self.range_end
                 self.y_vel = -1 * ENEMY_SPEED
+        elif self.isVerticalForwards:
+            if self.rect.bottom > self.starty + 5:
+                self.rect.bottom = self.starty + 5
+                self.y_vel = -20 * ENEMY_SPEED
+            '''elif self.rect.y < self.starty - 160:
+                self.rect.y = self.starty - 160
+                self.yvel = 20 * ENEMY_SPEED'''
 
         self.rect.y += self.y_vel
         if (self.state != c.DEATH_JUMP and 
@@ -203,15 +229,15 @@ class Enemy(pg.sprite.Sprite):
         self.direction = direction
         if self.direction == c.RIGHT:
             self.x_vel = ENEMY_SPEED
-            if self.state == c.WALK or self.state == c.FLY:
+            if self.state == c.WALK or self.state == c.FLY or self.state == c.FLY_FORWARDS:
                 self.frame_index = 4
         else:
             self.x_vel = ENEMY_SPEED * -1
-            if self.state == c.WALK or self.state == c.FLY:
+            if self.state == c.WALK or self.state == c.FLY or self.state == c.FLY_FORWARDS:
                 self.frame_index = 0
 
     def check_y_collisions(self, level):
-        # decrease runtime delay: when enemey is on the ground, don't check brick and box
+        # decrease runtime delay: when enemy is on the ground, don't check brick and box
         if self.rect.bottom >= c.GROUND_HEIGHT:
             sprite_group = level.ground_step_pipe_group
         else:
@@ -222,7 +248,7 @@ class Enemy(pg.sprite.Sprite):
             if self.rect.top <= sprite.rect.top:
                 self.rect.bottom = sprite.rect.y
                 self.y_vel = 0
-                self.state = c.WALK
+                if self.state != c.FLY_FORWARDS: self.state = c.WALK
         level.check_is_falling(self)
 
 class Goomba(Enemy):
@@ -294,6 +320,7 @@ class FlyKoopa(Enemy):
     def __init__(self, x, y, direction, color, in_range, 
                 range_start, range_end, isVertical, name=c.FLY_KOOPA):
         Enemy.__init__(self)
+        self.color = color
         frame_rect_list = self.get_frame_rect(color)
         self.setup_enemy(x, y, direction, name, setup.GFX[c.ENEMY_SHEET], 
                     frame_rect_list, in_range, range_start, range_end, isVertical)
@@ -314,7 +341,7 @@ class FlyKoopa(Enemy):
         return frame_rect_list
 
     def jumped_on(self):
-        self.x_vel = 0
+        '''self.x_vel = 0
         self.frame_index = 2
         x = self.rect.x
         bottom = self.rect.bottom
@@ -322,7 +349,43 @@ class FlyKoopa(Enemy):
         self.rect.x = x
         self.rect.bottom = bottom
         self.in_range = False
-        self.isVertical = False
+        self.isVertical = False'''
+        self.state = c.REPLACE_WITH_KOOPA
+
+class FlyForwardsKoopa(Enemy):
+    def __init__(self, x, y, direction, color, in_range,
+                 range_start, range_end, name=c.FLY_FORWARDS_KOOPA):
+        Enemy.__init__(self)
+        self.color = color
+        frame_rect_list = self.get_frame_rect(color)
+        self.setup_enemy(x, y, direction, name, setup.GFX[c.ENEMY_SHEET],
+                         frame_rect_list, in_range, range_start, range_end, isVerticalForwards=True)
+        # dead jump image
+        self.frames.append(pg.transform.flip(self.frames[2], False, True))
+        # right walk images
+        self.frames.append(pg.transform.flip(self.frames[0], True, False))
+        self.frames.append(pg.transform.flip(self.frames[1], True, False))
+        self.state = c.FLY_FORWARDS
+
+    def get_frame_rect(self, color):
+        if color == c.COLOR_TYPE_GREEN:
+            frame_rect_list = [(90, 0, 16, 24), (120, 0, 16, 24), 
+                        (330, 5, 16, 15)]
+        else:
+            frame_rect_list = [(90, 30, 16, 24), (120, 30, 16, 24), 
+                        (330, 35, 16, 15)]
+        return frame_rect_list
+
+    def jumped_on(self):
+        '''self.x_vel = 0
+        self.frame_index = 2
+        x = self.rect.x
+        bottom = self.rect.bottom
+        self.rect = self.frames[self.frame_index].get_rect()
+        self.rect.x = x
+        self.rect.bottom = bottom'''
+        #self.state = c.WALK
+        self.state = c.REPLACE_WITH_KOOPA
 
 class FireKoopa(Enemy):
     def __init__(self, x, y, direction, color, in_range,
