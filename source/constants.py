@@ -57,6 +57,7 @@ TOP_SCORE = 'top score'
 LIVES = 'lives'
 CURRENT_TIME = 'current time'
 LEVEL_NUM = 'level num'
+WORLD_NUM = 'world num'
 PLAYER_NAME = 'player name'
 PLAYER_MARIO = 'mario'
 PLAYER_LUIGI = 'luigi'
@@ -81,6 +82,7 @@ TYPE_MUSHROOM = 3
 TYPE_FIREFLOWER = 4
 TYPE_FIREBALL = 5
 TYPE_LIFEMUSHROOM = 6
+TYPE_VINE = 7
 MAP_ENEMY = 'enemy'
 ENEMY_TYPE_GOOMBA = 0
 ENEMY_TYPE_KOOPA = 1
@@ -88,6 +90,7 @@ ENEMY_TYPE_FLY_KOOPA = 2
 ENEMY_TYPE_PIRANHA = 3
 ENEMY_TYPE_FIRESTICK = 4
 ENEMY_TYPE_FIRE_KOOPA = 5
+ENEMY_TYPE_FLY_FORWARDS_KOOPA = 6
 ENEMY_RANGE = 'range'
 MAP_CHECKPOINT = 'checkpoint'
 ENEMY_GROUPID = 'enemy_groupid'
@@ -100,6 +103,7 @@ CHECKPOINT_TYPE_PIPE = 4        # trigger player to go right in a pipe
 CHECKPOINT_TYPE_PIPE_UP = 5     # trigger player to another map and go up out of a pipe
 CHECKPOINT_TYPE_MAP = 6         # trigger player to go to another map
 CHECKPOINT_TYPE_BOSS = 7        # defeat the boss
+CHECKPOINT_TYPE_COIN = 8        # like mushroom but only a coin
 MAP_FLAGPOLE = 'flagpole'
 FLAGPOLE_TYPE_FLAG = 0
 FLAGPOLE_TYPE_POLE = 1
@@ -167,6 +171,7 @@ FIRE_KOOPA = 'fire koopa'
 FIRE = 'fire'
 PIRANHA = 'piranha'
 FIRESTICK = 'firestick'
+FLY_FORWARDS_KOOPA = 'fly forwards koopa'
 
 #GOOMBA Stuff
 LEFT = 'left'
@@ -176,6 +181,8 @@ DEATH_JUMP = 'death jump'
 
 #KOOPA STUFF
 SHELL_SLIDE = 'shell slide'
+FLY_FORWARDS = 'fly forwards'
+REPLACE_WITH_KOOPA = 'replace with koopa'
 
 #FLAG STATE
 TOP_OF_POLE = 'top of pole'
