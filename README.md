@@ -2,6 +2,8 @@
 A improved supermario game based on https://github.com/justinmeister/Mario-Level-1
 and https://github.com/marblexu/PythonSuperMario
 
+Level 2-1 currently in progress.
+
 * support five levels：level 1-1 to level 2-1 
 * support go into the pipe
 * use json file to store level data (e.g. position of enemy, brick, box and pipe)
