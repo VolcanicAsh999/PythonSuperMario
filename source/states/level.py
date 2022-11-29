@@ -30,8 +30,8 @@ class Level(tools.State):
         self.setup_pipe()
         self.setup_slider()
         self.setup_static_coin()
-        self.setup_brick_and_box()
         self.setup_player()
+        self.setup_brick_and_box()
         self.setup_enemies()
         self.setup_checkpoints()
         self.setup_flagpole()
@@ -129,7 +129,7 @@ class Level(tools.State):
                 if data['type'] == c.TYPE_COIN:
                     self.box_group.add(box.Box(data['x'], data['y'], data['type'], self.coin_group))
                 else:
-                    self.box_group.add(box.Box(data['x'], data['y'], data['type'], self.powerup_group))
+                    self.box_group.add(box.Box(data['x'], data['y'], data['type'], self.powerup_group, player=self.player))
             
     def setup_player(self):
         if self.player is None:

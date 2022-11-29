@@ -6,7 +6,7 @@ from .. import constants as c
 from . import coin, powerup
 
 class Box(pg.sprite.Sprite):
-    def __init__(self, x, y, type, group=None, name=c.MAP_BOX):
+    def __init__(self, x, y, type, group=None, name=c.MAP_BOX, player=None):
         pg.sprite.Sprite.__init__(self)
         
         self.frames = []
@@ -26,6 +26,8 @@ class Box(pg.sprite.Sprite):
         self.type = type
         self.group = group
         self.name = name
+
+        self.player = player
         
     def load_frames(self):
         sheet = setup.GFX['tile_set']
@@ -59,10 +61,13 @@ class Box(pg.sprite.Sprite):
         if self.rect.y > self.rest_height + 5:
             self.rect.y = self.rest_height
             self.state = c.OPENED
-            if self.type == c.TYPE_MUSHROOM:
-                self.group.add(powerup.Mushroom(self.rect.centerx, self.rect.y))
-            elif self.type == c.TYPE_FIREFLOWER:
-                self.group.add(powerup.FireFlower(self.rect.centerx, self.rect.y))
+            if self.type == c.TYPE_MUSHROOM or self.type == c.TYPE_FIREFLOWER:
+                if self.player.big or self.player.fire:
+                    self.group.add(powerup.FireFlower(self.rect.centerx, self.rect.y))
+                else:
+                    self.group.add(powerup.Mushroom(self.rect.centerx, self.rect.y))
+            #elif self.type == c.TYPE_FIREFLOWER:
+            #    self.group.add(powerup.FireFlower(self.rect.centerx, self.rect.y))
             elif self.type == c.TYPE_LIFEMUSHROOM:
                 self.group.add(powerup.LifeMushroom(self.rect.centerx, self.rect.y))
         self.frame_index = 4

@@ -22,7 +22,7 @@ def create_brick(brick_group, item, level):
         type == c.TYPE_LIFEMUSHROOM or
         type == c.TYPE_MUSHROOM):
         brick_group.add(Brick(x, y, type,
-                    color, level.powerup_group))
+                    color, level.powerup_group, player=level.player))
     else:
         if c.BRICK_NUM in item:
             create_brick_list(brick_group, item[c.BRICK_NUM], x, y, type,
@@ -43,7 +43,7 @@ def create_brick_list(brick_group, num, x, y, type, color, direction):
         brick_group.add(Brick(tmp_x, tmp_y, type, color))
         
 class Brick(stuff.Stuff):
-    def __init__(self, x, y, type, color=c.ORANGE, group=None, name=c.MAP_BRICK):
+    def __init__(self, x, y, type, color=c.ORANGE, group=None, name=c.MAP_BRICK, player=None):
         orange_rect = [(16, 0, 16, 16), (432, 0, 16, 16)]
         green_rect = [(208, 32, 16, 16), (48, 32, 16, 16)]
         if color == c.COLOR_TYPE_ORANGE:
@@ -64,6 +64,7 @@ class Brick(stuff.Stuff):
             self.coin_num = 0
         self.group = group
         self.name = name
+        self.player = player
     
     def update(self):
         if self.state == c.BUMPED:
@@ -83,15 +84,18 @@ class Brick(stuff.Stuff):
             elif self.type == c.TYPE_STAR:
                 self.state = c.OPENED
                 self.group.add(powerup.Star(self.rect.centerx, self.rest_height))
-            elif self.type == c.TYPE_FIREFLOWER:
+            elif self.type == c.TYPE_FIREFLOWER or self.type == c.TYPE_MUSHROOM:
                 self.state = c.OPENED
-                self.group.add(powerup.FireFlower(self.rect.centerx, self.rest_height))
+                if self.player.fire or self.player.big:
+                    self.group.add(powerup.FireFlower(self.rect.centerx, self.rest_height))
+                else:
+                    self.group.add(powerup.Mushroom(self.rect.centerx, self.rest_height))
             elif self.type == c.TYPE_LIFEMUSHROOM:
                 self.state = c.OPENED
                 self.group.add(powerup.LifeMushroom(self.rect.centerx, self.rest_height))
-            elif self.type == c.TYPE_MUSHROOM:
-                self.state = c.OPENED
-                self.group.add(powerup.Mushroom(self.rect.centerx, self.rest_height))
+            #elif self.type == c.TYPE_MUSHROOM:
+            #    self.state = c.OPENED
+            #    self.group.add(powerup.Mushroom(self.rect.centerx, self.rest_height))
             else:
                 self.state = c.RESTING
         
